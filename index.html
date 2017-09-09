@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Weather</title>
+    <link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/microservice-static-page/styles.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+  </head>
+  <body ng-app="MyApp" ng-controller="getWeather">
+    <div class="container">
+      <h2 align="center">Past weeks' weather</h2>
+      <fieldset>
+        <form name="wform" ng-submit="sub()">
+          <input ng-model="city" id="city" type="text" class="ghost-input" placeholder="Enter a City or Zipcode" required>
+          <select ng-model="weekof" id="weekof" class="ghost-select" required>
+            <option value="" selected disabled>Week of</option>
+            <option value="2017-08-27">08/27/2017</option>
+            <option value="2017-08-20">08/20/2017</option>
+            <option value="2017-08-13">08/13/2017</option>
+            <option value="2017-08-06">08/06/2017</option>
+            <option value="2017-07-30">07/30/2017</option>
+          </select>
+          <input type="submit" class="ghost-button" value="Get Weather">
+        </form>
+      </fieldset>
+    </div>
+    <div>
+      {{ err }}
+        <table>
+          <th colspan="7">{{ weathers[0] }}</th>
+          <tr>
+            <td ng-repeat="dat in weathers" ng-hide="$first">{{ dat.date }}</td>
+          </tr>
+          <tr>
+            <td ng-repeat="d in weathers" ng-hide="$first">{{ d.day }}</td>
+          </tr>
+          <tr>
+            <td ng-repeat="des in weathers" ng-hide="$first">{{ des.desc }}</td>
+          </tr>
+          <tr>
+            <td ng-repeat="i in weathers" ng-hide="$first"><img ng-src="{{ i.img }}" alt="" width="100" height="100"></td>
+          </tr>
+          <tr>
+            <td ng-repeat="t in weathers" ng-hide="$first">{{ t.maxtempF }}F / {{ t.mintempF }}F</td>
+          </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+
+        var app = angular.module("MyApp", []);
+        app.controller("getWeather", function($scope, $http) {
+
+          $scope.sub = function() {
+            $scope.err ='';
+            $scope.weathers='';
+            var req = {
+              method: 'POST',
+              url: 'https://us-central1-mystic-berm-178706.cloudfunctions.net/weather',
+              data: JSON.stringify({
+              city: $scope.city,
+              weekof: $scope.weekof
+              })
+            }
+            $http(req).then(function mySuccess(response) {
+              if (response.data.Error) {
+                  $scope.err = response.data.Error;
+              } else {
+                  $scope.weathers = response.data;
+                  err = null;
+              }
+
+            }, function myError(response) {
+                $scope.err = response;
+              });
+
+            };
+          });
+
+      </script>
+  </body>
+</html>
